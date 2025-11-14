@@ -159,6 +159,83 @@ scikit-learn
 ```
 ---
 
+## 전체 파이프라인 구조 (정확한 기술적 형태)
+
+```
+[Waveform 16kHz PCM]
+            │
+            ▼
+    ┌─────────────────────────┐
+    │   Stage 1: YAMNet        │
+    │  (yamnet.tflite, 1024d)  │
+    └─────────────────────────┘
+            │  (1024-dim embedding)
+            ▼
+    ┌─────────────────────────┐
+    │   Stage 2: Custom Head  │
+    │ (head_1024_fp16.tflite) │
+    └─────────────────────────┘
+            │  (17 logits)
+            ▼
+      Sigmoid Activation
+            │
+            ▼
+  [17-class Multi-label Probabilities]
+```
+
+## 🧩 단계별 상세 설명
+```
+1) Input Audio (Waveform)
+
+16,000Hz mono WAV (필수)
+
+YAMNet이 요구하는 표준 형태
+
+실시간이라면 마이크 스트림에서 0.48초씩 끊어서 들어감
+```
+```
+2) Stage 1: YAMNet Backbone (1024-dim Embedding)
+
+파일: models/yamnet/yamnet.tflite
+
+역할:
+
+AudioSet으로 학습된 거대한 프리트레인 모델
+
+입력 waveform → 1024-dimensional embedding 벡터를 출력
+
+custom head의 feature extractor 역할
+
+출력 형태:
+
+(batch, time_frames, 1024)
+
+
+시간 프레임 평균을 취해서 최종 1024-dim 벡터 하나로 만듦:
+
+mean embedding → (1024,)
+```
+```
+3) Stage 2: Custom Head (17-class FP16 TFLite)
+
+파일: models/head/head_1024_fp16.tflite
+
+구조 (일반적 형태):
+
+Dense(512) → ReLU
+Dense(128) → ReLU
+Dense(17)  → logits
+```
+```
+4) Sigmoid Activation (Multi-label Classification)
+
+최종적으로 softmax가 아닌 sigmoid를 사용한다:
+
+각 클래스가 서로 독립
+
+speech + television, sink + dishes 같은 동시 음원 처리 가능
+```
+
 ## 📄 License
 MIT License
 
