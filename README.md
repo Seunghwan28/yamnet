@@ -21,14 +21,16 @@
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
+```
 
 ### 2) 패키지 설치
 ```bash
 pip install -r requirements.txt
-
+```
 ---
 
 ## 📁 Project Structure
+```
 YAMNET/
 │
 ├── models/
@@ -56,43 +58,55 @@ YAMNET/
 │
 ├── requirements.txt
 └── README.md
+```
 
 ---
 
 ## ▶️ How to Run
 
 ### 1) WAV 파일 분류
+```
 python scripts/run_yamnet_plus_head_tflite.py
+```
 
 ### 2) 실시간 마이크 기반 분류
+```
 python scripts/realtime_infer_mic.py
+```
 
 ---
 
 ## 🧠 Model Overview
 
 ### 🔹 YAMNet Backbone (256-dim)
+```
 Google AudioSet 기반 모델  
 원본 1024-dim → 256-dim 경량화 버전 제공  
 Custom Head의 입력 임베딩으로 사용
+```
 
 ### 🔹 Custom Head (17-Class, FP16)
+```
 YAMNet 임베딩을 입력으로 받아 17개 클래스 분류  
 FP16 TFLite (~1.3MB)  
 Raspberry Pi 4/5 등 Edge 디바이스에서 실시간 가능
+```
 
 ---
 
 ## 📊 Evaluation Results (AUC / AUPR)
 
 ### 전체 요약
+```
 {
   "num_samples": 22212,
   "macro_auc": 0.9898577788296867,
   "macro_aupr": 0.9705225053955527
 }
+```
 
 ### 클래스별 성능 요약
+```
 Class | AUC | AUPR
 door | 0.9878 | 0.9579
 dishes | 0.9897 | 0.9614
@@ -111,11 +125,11 @@ television | 0.9819 | 0.9566
 footsteps | 0.9788 | 0.9445
 vacuum | 0.9980 | 0.9957
 hair_dryer | 0.9981 | 0.9940
-
+```
 ---
 
 ## 📜 Scripts Description
-
+```
 train_head_1024.py  
 YAMNet 임베딩 기반 17-class head 학습 및 FP16 TFLite 변환
 
@@ -130,10 +144,11 @@ YAMNet TFLite 구조 및 tensor index 자동 분석
 
 eval_per_class.py  
 클래스별 AUC / AUPR 계산
-
+```
 ---
 
 ## 📦 Requirements
+```
 tensorflow==2.15.0  
 tensorflow-hub  
 numpy  
@@ -141,7 +156,7 @@ soundfile
 sounddevice  
 tflite-runtime  
 scikit-learn  
-
+```
 ---
 
 ## 📄 License
