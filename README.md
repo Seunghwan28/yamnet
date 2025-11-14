@@ -1,132 +1,180 @@
-YAMNet-Lite + Custom Head (17-Class Home Sound Classifier)
-==========================================================
+# YAMNet-Lite + Custom Head (17-Class Home Sound Classifier)
 
-이 프로젝트는 **Google YAMNet**의 임베딩을 기반으로 **17개 생활 소리만 분류하는 초경량 오디오 분류기**를 구현한 것입니다.라즈베리파이·임베디드 IoT 환경에서도 실시간으로 실행 가능하도록 모델을 최적화했습니다.
+이 프로젝트는 Google YAMNet의 임베딩을 기반으로 **17개 생활 소리만 분류하는 초경량 오디오 분류기**를 구현한 것입니다.  
+라즈베리파이·임베디드 IoT 환경에서도 실시간으로 실행 가능하도록 모델을 최적화했습니다.
 
-📌 Features
------------
+---
 
-*   **YAMNet 256-dim 경량화 모델** 사용
-    
-*   **17-class custom head TFLite 모델 (FP16, ~1.3MB)**
-    
-*   **WAV 파일 분류 / 실시간 마이크 입력 분류** 지원
-    
-*   **TFLite Runtime 기반 Edge 디바이스 실행 최적화**
-    
-*   **클래스별 AUC / AUPR 검증 평가 제공**
-    
+## 🚀 Features
 
-📁 Project Structure
---------------------
+- **YAMNet 256-dim 경량화 백본 사용**
+- **17-class custom head TFLite 모델 (FP16, ~1.3MB)**
+- WAV 파일 분류 / 실시간 마이크 입력 분류 지원
+- TFLite Runtime 기반 Edge 디바이스 최적화
+- 클래스별 **AUC / AUPR 성능 제공**
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   YAMNET/  │  ├── models/  │   ├── yamnet/  │   │   ├── yamnet.tflite          # 원본 1024-dim YAMNet  │   │   └── yamnet-256.tflite      # 경량화된 256-dim YAMNet  │   │  │   └── head/  │       ├── head_1024_fp16.tflite  # 1024-dim head (초기 모델)  │       └── head_256_fp16.tflite   # 최종 256-dim head (17-class)  │  ├── runs_multi/  │   └── per_class_eval_1024.json   # 클래스별 AUC/AUPR 평가 결과  │  ├── scripts/  │   │  │   ├── train_head_1024.py               # Head 학습 스크립트  │   ├── eval_per_class.py                # AUC/AUPR 평가  │   ├── inspect_yamnet_tflite.py         # TFLite 구조 확인  │   ├── run_yamnet_plus_head_tflite.py   # WAV 파일 분류 실행  │   ├── realtime_infer_mic.py            # 실시간 마이크 추론  │   │  │   └── data/  │       ├── balanced_train_segments.csv  # 학습용 AudioSet 라벨링 파일  │       ├── class_labels_indices.csv     # 521개 원본 레이블 목록  │       └── ontology.json                # AudioSet 레이블 계층 구조  │  ├── requirements.txt               # Python 패키지 목록  └── README.md                      # (현재 문서)   `
+---
 
-🔧 Installation
----------------
+## 🔧 Installation
 
-### 1) Create Virtual Environment
+### 1) 가상환경 생성
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   cd YAMNET  python3 -m venv .venv  source .venv/bin/activate   `
+2) 패키지 설치
+pip install -r requirements.txt
 
-### 2) Install Requirements
+🗂️ Project Structure
+YAMNET/
+│
+├── models/
+│   ├── yamnet/
+│   │   ├── yamnet.tflite
+│   │   └── yamnet-256.tflite
+│   └── head/
+│       ├── head_1024_fp16.tflite
+│       └── head_256_fp16.tflite
+│
+├── runs_multi/
+│   └── per_class_eval_1024.json
+│
+├── scripts/
+│   ├── eval_per_class.py
+│   ├── inspect_yamnet_tflite.py
+│   ├── realtime_infer_mic.py
+│   ├── run_yamnet_plus_head_tflite.py
+│   └── train_head_1024.py
+│
+├── scripts/data/
+│   ├── balanced_train_segments.csv
+│   ├── class_labels_indices.csv
+│   └── ontology.json
+│
+├── requirements.txt
+└── README.md
 
-#### 일반 환경 (TF 사용)
+▶️ How to Run
+1) WAV 파일 분류
+python scripts/run_yamnet_plus_head_tflite.py
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   pip install -r requirements.txt   `
+2) 실시간 마이크 기반 분류
+python scripts/realtime_infer_mic.py
 
-#### 라즈베리파이 (TensorFlow Lite Runtime 환경)
+🧠 Model Overview
+🔹 YAMNet Backbone (256-dim)
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   pip install tflite-runtime  pip install numpy soundfile pyaudio   `
+Google AudioSet 기반 모델
 
-🧪 Usage
---------
+원래 1024-dim → 256-dim 경량화된 버전도 제공
 
-### ▶️ 1. WAV 파일 분류
+임베딩을 Custom Head의 입력으로 사용
 
-run\_yamnet\_plus\_head\_tflite.py 내부에서 WAV 경로를 수정한 뒤 실행:
+🔹 Custom Head (17-Class, FP16)
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   python scripts/run_yamnet_plus_head_tflite.py   `
+YAMNet 임베딩을 입력으로 받아 17개 가정생활 소리 분류
 
-출력 예:
+FP16 TFLite (~1.3MB)로 모바일·IoT 환경 최적화
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   door         0.002  sink         0.932  <-- 가장 가능성 높은 클래스  microwave    0.010   `
+Raspberry Pi 4/5, Android, MCU 보드 등에서 실시간 가능
 
-### 🎤 2. 실시간 마이크 스트리밍
+📊 Evaluation Results (AUC / AUPR)
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   python scripts/realtime_infer_mic.py   `
+runs_multi/per_class_eval_1024.json 분석 결과:
 
-실행하면 100ms 간격으로 현재 소리를 분류합니다.
+✔ 전체 요약
+{
+  "num_samples": 22212,
+  "macro_auc": 0.9898577788296867,
+  "macro_aupr": 0.9705225053955527
+}
 
-예:
+✔ 주요 클래스별 AUC / AUPR 요약
+Class	AUC	AUPR
+door	0.9878	0.9579
+dishes	0.9897	0.9614
+cutlery	0.9830	0.9533
+chopping	0.9796	0.9547
+frying	0.9913	0.9761
+microwave	0.9941	0.9743
+blender	0.9947	0.9886
+water_tap	0.9897	0.9615
+sink	0.9935	0.9665
+toilet_flush	0.9962	0.9911
+telephone	0.9953	0.9869
+chewing	0.9849	0.9659
+speech	0.9902	0.9693
+television	0.9819	0.9566
+footsteps	0.9788	0.9445
+vacuum	0.9980	0.9957
+hair_dryer	0.9981	0.9940
+📜 Description of Key Files
+📁 models/yamnet/
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   Listening...  [ sink ] 0.91  [ footsteps ] 0.07   `
+yamnet.tflite: Google 원본 1024-dim YAMNet 모델
 
-📊 Model Evaluation (AUC / AUPR)
---------------------------------
+yamnet-256.tflite: 임베딩 256차원으로 축소한 경량화 백본
 
-runs\_multi/per\_class\_eval\_1024.json 파일은 17개 클래스에 대한**AUC(Area Under Curve)** 및**AUPR(Area Under Precision-Recall curve)** 평가 결과입니다.
+📁 models/head/
 
-### Summary
+head_1024_fp16.tflite: 1024-dim YAMNet 임베딩용 custom head (최종 모델)
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   {    "num_samples": 22212,    "macro_auc": 0.9898,    "macro_aupr": 0.9705  }   `
+head_256_fp16.tflite: 256-dim 임베딩용 custom head (보조 모델)
 
-*   **macro\_auc ≈ 0.99** → 모델이 전체적으로 매우 잘 분류함
-    
-*   **macro\_aupr ≈ 0.97** → 클래스 불균형에도 뛰어난 성능
-    
-*   17개 클래스 모두 AUC 0.97~0.998 수준의 우수한 분류 성능 확보
-    
+📁 scripts/
+🔹 train_head_1024.py
 
-### Per-Class Example (일부 발췌)
+YAMNet 임베딩을 입력 받아 17-class head 학습
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   "door": { "auc": 0.9878, "aupr": 0.9579 },  "dishes": { "auc": 0.9897, "aupr": 0.9614 },  "footsteps": { "auc": 0.9788, "aupr": 0.9445 },  "vacuum": { "auc": 0.9980, "aupr": 0.9957 }   `
+결과물을 TFLite FP16으로 변환
 
-*   기계음(vacuum, hair\_dryer 등)은 거의 완벽
-    
-*   난이도 높은 소리(발걸음, 식기류 등)도 0.94~0.97의 높은 성능
-    
+🔹 run_yamnet_plus_head_tflite.py
 
-🧠 Model Architecture
----------------------
+WAV 파일을 입력받아
+YAMNet → Head TFLite 순으로 분류 처리하는 단일 파이프라인
 
-### 1) YAMNet (Frozen)
+🔹 realtime_infer_mic.py
 
-*   Google's YAMNet 구조 유지
-    
-*   오디오 파형 → 256-dim 임베딩 출력
-    
+실시간 16kHz 마이크 데이터를 스트리밍해서 분류
 
-### 2) Custom Head (Trainable)
+Raspberry Pi 환경에서 즉시 사용 가능
 
-*   Input: (256,)
-    
-*   Dense → ReLU → Dropout → Dense → Softmax
-    
-*   최종 Output: (17,)
-    
+🔹 inspect_yamnet_tflite.py
 
-🚀 Edge Deployment (라즈베리파이)
----------------------------
+YAMNet TFLite 구조(입출력 shape 및 tensor index) 자동 분석
 
-필요 파일:
+🔹 eval_per_class.py
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   models/yamnet/yamnet-256.tflite  models/head/head_256_fp16.tflite  scripts/realtime_infer_mic.py   `
+클래스별 AUC / AUPR 계산
 
-라즈베리파이 설정:
+📁 scripts/data/
+balanced_train_segments.csv
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   pip install tflite-runtime soundfile pyaudio numpy  python realtime_infer_mic.py   `
+AudioSet Balanced train 목록
 
-🧾 License
-----------
+class_labels_indices.csv
 
-모델 및 코드는 MIT 라이선스를 따릅니다.YAMNet은 Google Research의 오픈소스를 기반으로 합니다.
+521개 레이블 인덱스 정의
 
-🙌 Acknowledgements
--------------------
+ontology.json
 
-*   Google YAMNet
-    
-*   AudioSet Dataset
-    
-*   TF Lite Team
+AudioSet Ontology 구조
+
+📦 requirements.txt (예시 내용)
+tensorflow==2.15.0
+tensorflow-hub
+numpy
+soundfile
+sounddevice
+tflite-runtime
+scikit-learn
+
+📄 License
+
+MIT License
+
+📬 Contact
+
+문의: your-email@example.com
+
+GitHub Issues로 문의 가능
