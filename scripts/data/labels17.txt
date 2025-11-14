@@ -1,0 +1,17 @@
+door
+dishes
+cutlery
+chopping
+frying
+microwave
+blender
+water_tap
+sink
+toilet_flush
+telephone
+chewing
+speech
+television
+footsteps
+vacuum
+hair_dryer

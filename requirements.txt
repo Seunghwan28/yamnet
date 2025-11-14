@@ -1,0 +1,11 @@
+# === Core ===
+numpy>=1.24,<2.0
+soundfile>=0.12
+sounddevice>=0.4
+
+# TensorFlow & Hub (YAMNet, Keras head 학습)
+tensorflow>=2.13,<2.17
+tensorflow-hub>=0.16
+
+# Feature 추출/스펙트로그램 (필요 시)
+librosa>=0.10
